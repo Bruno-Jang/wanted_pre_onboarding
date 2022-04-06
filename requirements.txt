@@ -1,0 +1,6 @@
+asgiref==3.5.0
+certifi==2021.10.8
+Django==4.0.3
+django-cors-headers==3.11.0
+mysqlclient==2.1.0
+sqlparse==0.4.2
