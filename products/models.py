@@ -27,7 +27,7 @@ class Detail(models.Model):
         
 class Funding(TimeStampModel):
     quantity = models.IntegerField()
-    product  = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
+    product  = models.ForeignKey(Product, on_delete=models.CASCADE)
     backer   = models.ForeignKey(Backer, on_delete=models.SET_NULL, null=True)
     
     class Meta:
