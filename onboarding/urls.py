@@ -1,3 +1,6 @@
-from django.urls import path
+from django.urls import path, include
 
-urlpatterns = []
+urlpatterns = [
+    path('products', include('products.urls')),
+    path('members', include('members.urls')),
+]
