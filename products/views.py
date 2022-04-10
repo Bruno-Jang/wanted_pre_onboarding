@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import json
 from MySQLdb      import IntegrityError
 from django.http  import JsonResponse
@@ -27,7 +29,6 @@ class ProductCreationView(View):
                 end_date    = end_date,
                 publisher   = publisher
             )
-            # print(product)
             
             detail = Detail.objects.create(
                 target_amount      = target_amount,
@@ -38,7 +39,6 @@ class ProductCreationView(View):
                 total_backers      = 0,
                 product            = product
             )
-            # print(detail)
             return JsonResponse({'message': 'SUCCESS'}, status=201)
             
         except ValueError:
@@ -61,6 +61,29 @@ class ProductDeletionView(View):
             Detail.objects.get(product=product).delete()
             product.delete()
             return JsonResponse({'message': 'NO_CONTENT'}, status=204)
+        
+        except Product.DoesNotExist:
+            return JsonResponse({'message': 'NO_PRODUCT_FOUND'}, status=404)
+
+class ProductDetailView(View):
+    def get(self, request, product_id):
+        try:
+            product  = Product.objects.select_related('detail', 'publisher').get(pk=product_id)
+            end_date = datetime.strptime(product.end_date, '%Y-%m-%d').date()
+
+            data = {
+                'product_id'      : product.id,
+                'product_title'   : product.title,
+                'description'     : product.description,
+                'publisher_id'    : product.publisher.id,
+                'publisher_name'  : product.publisher.name,
+                'target_amount'   : format(product.detail.target_amount, ',') + '원',
+                'total_amount'    : format(product.detail.total_amount, ',') + '원',
+                'achievement_rate': str(product.detail.achievement_rate) + '%',
+                'd-day'           : str((end_date - datetime.now().date()).days) + '일',
+                'total_backers'   : str(product.detail.total_backers) + '명'
+            }
+            return JsonResponse({'message': 'SUCCESS', 'data': data}, status=200)
         
         except Product.DoesNotExist:
             return JsonResponse({'message': 'NO_PRODUCT_FOUND'}, status=404)
