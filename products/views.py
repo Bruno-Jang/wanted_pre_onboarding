@@ -1,13 +1,11 @@
+import json
 from datetime import datetime
 
-import json
-from MySQLdb      import IntegrityError
 from django.http  import JsonResponse
 from django.views import View
 
 from members.models  import Publisher
 from products.models import Detail, Product
-
 
 class ProductCreationView(View):
     def post(self, request):
@@ -45,8 +43,6 @@ class ProductCreationView(View):
             return JsonResponse({'message': 'VALUE_ERROR'}, status=400)
         except KeyError:
             return JsonResponse({'message': 'KEY_ERROR'}, status=400)
-        except IntegrityError:
-            return JsonResponse({'message': 'PRODUCT_IS_ALREADY_USED'}, status=404)
         except Publisher.DoesNotExist:
             return JsonResponse({'message': 'NO_PUBLISHER_FOUND'}, status=404)
 
