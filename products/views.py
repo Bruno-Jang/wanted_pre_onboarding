@@ -87,3 +87,28 @@ class ProductDetailView(View):
         
         except Product.DoesNotExist:
             return JsonResponse({'message': 'NO_PRODUCT_FOUND'}, status=404)
+
+class ProductListView(View):
+    def get(self, request):
+        sort = request.GET.get('sort', 'id')
+
+        sort_set = {
+            'id'                     : 'id',
+            'created_ascending'      : 'created_datetime',
+            'created_descending'     : '-created_datetime',
+            'total_amount_ascending' : 'detail__total_amount',
+            'total_amount_descending': '-detail__total_amount'
+        }
+
+        products = Product.objects.select_related('detail', 'publisher').all().order_by(sort_set[sort])
+
+        data = [{
+            'product_id'      : product.id,
+            'product_title'   : product.title,
+            'publisher_id'    : product.publisher.id,
+            'publisher_name'  : product.publisher.name,
+            'total_amount'    : format(product.detail.total_amount, ',') + '원',
+            'achievement_rate': str(product.detail.achievement_rate) + '%',
+            'd-day'           : str((datetime.strptime(product.end_date, '%Y-%m-%d').date() - datetime.now().date()).days) + '일',
+        } for product in products]
+        return JsonResponse({'message': 'SUCCESS', 'data': data}, status=200)
