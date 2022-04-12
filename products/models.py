@@ -6,7 +6,7 @@ from members.models   import Backer, Publisher
 class Product(TimeStampModel):
     title       = models.CharField(max_length=50)
     description = models.TextField()
-    end_date    = models.CharField(max_length=20)
+    end_date    = models.DateField()
     publisher   = models.ForeignKey(Publisher, on_delete=models.SET_NULL, null=True)
     backer      = models.ManyToManyField(Backer, through='Funding')
     
