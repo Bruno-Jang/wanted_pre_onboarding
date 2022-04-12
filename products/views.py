@@ -65,8 +65,7 @@ class ProductDeletionView(View):
 class ProductDetailView(View):
     def get(self, request, product_id):
         try:
-            product  = Product.objects.select_related('detail', 'publisher').get(pk=product_id)
-            end_date = datetime.strptime(product.end_date, '%Y-%m-%d').date()
+            product = Product.objects.select_related('detail', 'publisher').get(pk=product_id)
 
             data = {
                 'product_id'      : product.id,
@@ -77,7 +76,7 @@ class ProductDetailView(View):
                 'target_amount'   : format(product.detail.target_amount, ',') + '원',
                 'total_amount'    : format(product.detail.total_amount, ',') + '원',
                 'achievement_rate': str(product.detail.achievement_rate) + '%',
-                'd-day'           : str((end_date - datetime.now().date()).days) + '일',
+                'd-day'           : str((product.end_date - datetime.now().date()).days) + '일',
                 'total_backers'   : str(product.detail.total_backers) + '명'
             }
             return JsonResponse({'message': 'SUCCESS', 'data': data}, status=200)
@@ -112,9 +111,16 @@ class ProductListView(View):
                 'publisher_name'  : product.publisher.name,
                 'total_amount'    : format(product.detail.total_amount, ',') + '원',
                 'achievement_rate': str(product.detail.achievement_rate) + '%',
-                'd-day'           : str((datetime.strptime(product.end_date, '%Y-%m-%d').date() - datetime.now().date()).days) + '일',
+                'd-day'           : str((product.end_date - datetime.now().date()).days) + '일',
             } for product in products]
             return JsonResponse({'message': 'SUCCESS', 'data': data}, status=200)
         
         except KeyError:
             return JsonResponse({'message': 'KEY_ERROR'}, status=400)
+
+# class ProductUpdateView(View):
+#     def patch(self, request):
+#         data = json.loads(request.body)
+        
+#         print(data)
+#         return JsonResponse({'message': 'SUCCESS'}, status=200)
