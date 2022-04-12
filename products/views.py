@@ -1,8 +1,9 @@
 import json
 from datetime import datetime
 
-from django.http  import JsonResponse
-from django.views import View
+from django.http      import JsonResponse
+from django.views     import View
+from django.db.models import Q
 
 from members.models  import Publisher
 from products.models import Detail, Product
@@ -86,25 +87,34 @@ class ProductDetailView(View):
 
 class ProductListView(View):
     def get(self, request):
-        sort = request.GET.get('sort', 'id')
+        try:
+            sort   = request.GET.get('order_by', 'id')
+            search = request.GET.get('search', None)
 
-        sort_set = {
-            'id'                     : 'id',
-            'created_ascending'      : 'created_datetime',
-            'created_descending'     : '-created_datetime',
-            'total_amount_ascending' : 'detail__total_amount',
-            'total_amount_descending': '-detail__total_amount'
-        }
+            q = Q()
+            if search:
+                q &= Q(title__icontains=search)
 
-        products = Product.objects.select_related('detail', 'publisher').all().order_by(sort_set[sort])
+            sort_set = {
+                'id'                     : 'id',
+                'created_ascending'      : 'created_datetime',
+                'created_descending'     : '-created_datetime',
+                'total_amount_ascending' : 'detail__total_amount',
+                'total_amount_descending': '-detail__total_amount'
+            }
 
-        data = [{
-            'product_id'      : product.id,
-            'product_title'   : product.title,
-            'publisher_id'    : product.publisher.id,
-            'publisher_name'  : product.publisher.name,
-            'total_amount'    : format(product.detail.total_amount, ',') + '원',
-            'achievement_rate': str(product.detail.achievement_rate) + '%',
-            'd-day'           : str((datetime.strptime(product.end_date, '%Y-%m-%d').date() - datetime.now().date()).days) + '일',
-        } for product in products]
-        return JsonResponse({'message': 'SUCCESS', 'data': data}, status=200)
+            products = Product.objects.select_related('detail', 'publisher').filter(q).order_by(sort_set[sort])
+
+            data = [{
+                'product_id'      : product.id,
+                'product_title'   : product.title,
+                'publisher_id'    : product.publisher.id,
+                'publisher_name'  : product.publisher.name,
+                'total_amount'    : format(product.detail.total_amount, ',') + '원',
+                'achievement_rate': str(product.detail.achievement_rate) + '%',
+                'd-day'           : str((datetime.strptime(product.end_date, '%Y-%m-%d').date() - datetime.now().date()).days) + '일',
+            } for product in products]
+            return JsonResponse({'message': 'SUCCESS', 'data': data}, status=200)
+        
+        except KeyError:
+            return JsonResponse({'message': 'KEY_ERROR'}, status=400)
