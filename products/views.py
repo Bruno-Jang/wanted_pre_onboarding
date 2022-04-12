@@ -29,7 +29,7 @@ class ProductCreationView(View):
                 publisher   = publisher
             )
             
-            detail = Detail.objects.create(
+            Detail.objects.create(
                 target_amount      = target_amount,
                 amount_per_session = amount_per_session,
                 total_amount       = 0,
@@ -118,9 +118,21 @@ class ProductListView(View):
         except KeyError:
             return JsonResponse({'message': 'KEY_ERROR'}, status=400)
 
-# class ProductUpdateView(View):
-#     def patch(self, request):
-#         data = json.loads(request.body)
+class ProductUpdateView(View):
+    def patch(self, request):
+        data = json.loads(request.body)
         
-#         print(data)
-#         return JsonResponse({'message': 'SUCCESS'}, status=200)
+        title = data.get('title')
+        description = data.get('description')
+        end_date = data.get('end_date')
+        publisher_id = data.get('publisher_id')
+        
+        
+        print(data)
+        print(title)
+        print(description)
+        print(end_date)
+        print(publisher_id)
+        
+        
+        return JsonResponse({'message': 'SUCCESS'}, status=200)
