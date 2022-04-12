@@ -92,7 +92,7 @@ class ProductListView(View):
 
             q = Q()
             if search:
-                q &= Q(title__icontains=search)
+                q = Q(title__icontains=search)
 
             sort_set = {
                 'id'                     : 'id',
@@ -122,17 +122,22 @@ class ProductUpdateView(View):
     def patch(self, request):
         data = json.loads(request.body)
         
-        title = data.get('title')
-        description = data.get('description')
-        end_date = data.get('end_date')
-        publisher_id = data.get('publisher_id')
+        product_id = data['product_id']
         
+        product = Product.objects.select_related('detail').get(pk=product_id)
         
-        print(data)
-        print(title)
-        print(description)
-        print(end_date)
-        print(publisher_id)
+        title              = data.get('title', product.title)
+        description        = data.get('description', product.description)
+        end_date           = data.get('end_date', product.end_date)
+        amount_per_session = data.get('amount_per_session', product.detail.amount_per_session)        
         
+        Product.objects.filter(pk=product_id).update(
+            title = title,
+            description = description,
+            end_date = end_date
+        )
         
-        return JsonResponse({'message': 'SUCCESS'}, status=200)
+        Detail.objects.filter(product_id=product.id).update(
+            amount_per_session = amount_per_session
+        )
+        return JsonResponse({'message': 'SUCCESSFULLY UPDATED'}, status=200)
