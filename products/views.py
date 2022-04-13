@@ -6,8 +6,8 @@ from django.http      import JsonResponse
 from django.views     import View
 from django.db.models import Q
 
-from members.models  import Publisher
-from products.models import Detail, Product
+from members.models      import Publisher
+from products.models     import Detail, Product
 from products.validators import validate_publisher
 
 class ProductCreationView(View):
