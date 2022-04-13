@@ -1,12 +1,14 @@
 import json
-from datetime import datetime
+from datetime     import datetime
+from json.decoder import JSONDecodeError
 
 from django.http      import JsonResponse
 from django.views     import View
 from django.db.models import Q
 
-from members.models  import Publisher
-from products.models import Detail, Product
+from members.models      import Publisher
+from products.models     import Detail, Product
+from products.validators import validate_publisher
 
 class ProductCreationView(View):
     def post(self, request):
@@ -47,21 +49,6 @@ class ProductCreationView(View):
         except Publisher.DoesNotExist:
             return JsonResponse({'message': 'NO_PUBLISHER_FOUND'}, status=404)
 
-class ProductDeletionView(View):
-    def delete(self, request, product_id, publisher_id):
-        try:
-            product = Product.objects.get(pk=product_id)
-            
-            if product.publisher.id != publisher_id:
-                return JsonResponse({'message': 'INVALID_PUBLISHER'}, status=404)
-                
-            Detail.objects.get(product=product).delete()
-            product.delete()
-            return JsonResponse({'message': 'NO_CONTENT'}, status=204)
-        
-        except Product.DoesNotExist:
-            return JsonResponse({'message': 'NO_PRODUCT_FOUND'}, status=404)
-
 class ProductDetailView(View):
     def get(self, request, product_id):
         try:
@@ -92,7 +79,7 @@ class ProductListView(View):
 
             q = Q()
             if search:
-                q &= Q(title__icontains=search)
+                q = Q(title__icontains=search)
 
             sort_set = {
                 'id'                     : 'id',
@@ -118,21 +105,46 @@ class ProductListView(View):
         except KeyError:
             return JsonResponse({'message': 'KEY_ERROR'}, status=400)
 
-class ProductUpdateView(View):
-    def patch(self, request):
-        data = json.loads(request.body)
+class ProductManageView(View):
+    def patch(self, request, product_id):
+        try:
+            data = json.loads(request.body)
+            
+            publisher_id = data['publisher_id']
+            product      = Product.objects.select_related('detail').get(pk=product_id)
+            
+            if not validate_publisher(product_id, publisher_id):
+                return JsonResponse({'message': 'FORBIDDEN'}, status=403)
+            
+            title              = data.get('title', product.title)
+            description        = data.get('description', product.description)
+            end_date           = data.get('end_date', product.end_date)
+            amount_per_session = data.get('amount_per_session', product.detail.amount_per_session)        
+            
+            Product.objects.filter(pk=product_id).update(
+                title       = title,
+                description = description,
+                end_date    = end_date
+            )
+            
+            Detail.objects.filter(product_id=product.id).update(
+                amount_per_session = amount_per_session
+            )
+            return JsonResponse({'message': 'SUCCESSFULLY_UPDATED'}, status=200)
+
+        except JSONDecodeError:
+            return JsonResponse({'message': 'JSON_DECODE_ERROR'}, status=404)
+
+    def delete(self, request, product_id):
+        try:
+            publisher_id = json.loads(request.body)['publisher_id']
+            product      = Product.objects.get(pk=product_id)
+            
+            if not validate_publisher(product_id, publisher_id):
+                return JsonResponse({'message': 'FORBIDDEN'}, status=403)
+                
+            product.delete()
+            return JsonResponse({'message': 'NO_CONTENT'}, status=204)
         
-        title = data.get('title')
-        description = data.get('description')
-        end_date = data.get('end_date')
-        publisher_id = data.get('publisher_id')
-        
-        
-        print(data)
-        print(title)
-        print(description)
-        print(end_date)
-        print(publisher_id)
-        
-        
-        return JsonResponse({'message': 'SUCCESS'}, status=200)
+        except Product.DoesNotExist:
+            return JsonResponse({'message': 'NO_PRODUCT_FOUND'}, status=404)
