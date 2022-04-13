@@ -49,21 +49,6 @@ class ProductCreationView(View):
         except Publisher.DoesNotExist:
             return JsonResponse({'message': 'NO_PUBLISHER_FOUND'}, status=404)
 
-class ProductDeletionView(View):
-    def delete(self, request, product_id, publisher_id):
-        try:
-            product = Product.objects.select_related('detail', 'publisher').prefetch_related('funding_set').get(pk=product_id)
-            
-            if not validate_publisher(product_id, publisher_id):
-                return JsonResponse({'message': 'FORBIDDEN'}, status=403)
-                
-            [funding.delete() for funding in product.funding_set.all()]
-            product.detail.delete()
-            return JsonResponse({'message': 'NO_CONTENT'}, status=204)
-        
-        except Product.DoesNotExist:
-            return JsonResponse({'message': 'NO_PRODUCT_FOUND'}, status=404)
-
 class ProductDetailView(View):
     def get(self, request, product_id):
         try:
@@ -120,15 +105,13 @@ class ProductListView(View):
         except KeyError:
             return JsonResponse({'message': 'KEY_ERROR'}, status=400)
 
-class ProductUpdateView(View):
-    def patch(self, request):
+class ProductManageView(View):
+    def patch(self, request, product_id):
         try:
             data = json.loads(request.body)
             
-            product_id   = data['product_id']
             publisher_id = data['publisher_id']
-            
-            product = Product.objects.select_related('detail').get(pk=product_id)
+            product      = Product.objects.select_related('detail').get(pk=product_id)
             
             if not validate_publisher(product_id, publisher_id):
                 return JsonResponse({'message': 'FORBIDDEN'}, status=403)
@@ -151,3 +134,17 @@ class ProductUpdateView(View):
 
         except JSONDecodeError:
             return JsonResponse({'message': 'JSON_DECODE_ERROR'}, status=404)
+
+    def delete(self, request, product_id):
+        try:
+            publisher_id = json.loads(request.body)['publisher_id']
+            product      = Product.objects.get(pk=product_id)
+            
+            if not validate_publisher(product_id, publisher_id):
+                return JsonResponse({'message': 'FORBIDDEN'}, status=403)
+                
+            product.delete()
+            return JsonResponse({'message': 'NO_CONTENT'}, status=204)
+        
+        except Product.DoesNotExist:
+            return JsonResponse({'message': 'NO_PRODUCT_FOUND'}, status=404)
