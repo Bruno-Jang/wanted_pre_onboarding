@@ -1,5 +1,6 @@
 import json
-from datetime import datetime
+from datetime     import datetime
+from json.decoder import JSONDecodeError
 
 from django.http      import JsonResponse
 from django.views     import View
@@ -50,13 +51,14 @@ class ProductCreationView(View):
 class ProductDeletionView(View):
     def delete(self, request, product_id, publisher_id):
         try:
-            product = Product.objects.get(pk=product_id)
+            print(request)
+            product = Product.objects.select_related('detail', 'publisher').prefetch_related('funding_set').get(pk=product_id)
             
             if product.publisher.id != publisher_id:
                 return JsonResponse({'message': 'INVALID_PUBLISHER'}, status=404)
                 
-            Detail.objects.get(product=product).delete()
-            product.delete()
+            [funding.delete() for funding in product.funding_set.all()]
+            product.detail.delete()
             return JsonResponse({'message': 'NO_CONTENT'}, status=204)
         
         except Product.DoesNotExist:
@@ -120,24 +122,26 @@ class ProductListView(View):
 
 class ProductUpdateView(View):
     def patch(self, request):
-        data = json.loads(request.body)
-        
-        product_id = data['product_id']
-        
-        product = Product.objects.select_related('detail').get(pk=product_id)
-        
-        title              = data.get('title', product.title)
-        description        = data.get('description', product.description)
-        end_date           = data.get('end_date', product.end_date)
-        amount_per_session = data.get('amount_per_session', product.detail.amount_per_session)        
-        
-        Product.objects.filter(pk=product_id).update(
-            title = title,
-            description = description,
-            end_date = end_date
-        )
-        
-        Detail.objects.filter(product_id=product.id).update(
-            amount_per_session = amount_per_session
-        )
-        return JsonResponse({'message': 'SUCCESSFULLY UPDATED'}, status=200)
+        try:
+            data       = json.loads(request.body)
+            product_id = data['product_id']
+            product    = Product.objects.select_related('detail').get(pk=product_id)
+            
+            title              = data.get('title', product.title)
+            description        = data.get('description', product.description)
+            end_date           = data.get('end_date', product.end_date)
+            amount_per_session = data.get('amount_per_session', product.detail.amount_per_session)        
+            
+            Product.objects.filter(pk=product_id).update(
+                title = title,
+                description = description,
+                end_date = end_date
+            )
+            
+            Detail.objects.filter(product_id=product.id).update(
+                amount_per_session = amount_per_session
+            )
+            return JsonResponse({'message': 'SUCCESSFULLY_UPDATED'}, status=200)
+
+        except JSONDecodeError:
+            return JsonResponse({'message': 'JSON_DECODE_ERROR'}, status=404)
