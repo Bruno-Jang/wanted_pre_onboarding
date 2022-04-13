@@ -8,6 +8,7 @@ from django.db.models import Q
 
 from members.models  import Publisher
 from products.models import Detail, Product
+from products.validators import validate_publisher
 
 class ProductCreationView(View):
     def post(self, request):
@@ -51,11 +52,10 @@ class ProductCreationView(View):
 class ProductDeletionView(View):
     def delete(self, request, product_id, publisher_id):
         try:
-            print(request)
             product = Product.objects.select_related('detail', 'publisher').prefetch_related('funding_set').get(pk=product_id)
             
-            if product.publisher.id != publisher_id:
-                return JsonResponse({'message': 'INVALID_PUBLISHER'}, status=404)
+            if not validate_publisher(product_id, publisher_id):
+                return JsonResponse({'message': 'FORBIDDEN'}, status=403)
                 
             [funding.delete() for funding in product.funding_set.all()]
             product.detail.delete()
@@ -123,9 +123,15 @@ class ProductListView(View):
 class ProductUpdateView(View):
     def patch(self, request):
         try:
-            data       = json.loads(request.body)
-            product_id = data['product_id']
-            product    = Product.objects.select_related('detail').get(pk=product_id)
+            data = json.loads(request.body)
+            
+            product_id   = data['product_id']
+            publisher_id = data['publisher_id']
+            
+            product = Product.objects.select_related('detail').get(pk=product_id)
+            
+            if not validate_publisher(product_id, publisher_id):
+                return JsonResponse({'message': 'FORBIDDEN'}, status=403)
             
             title              = data.get('title', product.title)
             description        = data.get('description', product.description)
@@ -133,9 +139,9 @@ class ProductUpdateView(View):
             amount_per_session = data.get('amount_per_session', product.detail.amount_per_session)        
             
             Product.objects.filter(pk=product_id).update(
-                title = title,
+                title       = title,
                 description = description,
-                end_date = end_date
+                end_date    = end_date
             )
             
             Detail.objects.filter(product_id=product.id).update(
