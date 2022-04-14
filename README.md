@@ -26,7 +26,7 @@
 ```bash
 	pip install -r requirements.txt
 ```
-4. model의 변경사항을 DB에 반영한다.
+4. DB 생성 후 model의 변경사항을 DB에 반영한다.
 ```bash
 	python manage.py makemigrations
 	python manage.py migrate
@@ -69,14 +69,20 @@
 uri, 클래스명, 변수명을 비롯한 코드들 모두 최대한 주석이 없어도 팀원분들과 공유가 가능할지를 생각하며 코드를 작성했습니다.
 
 
-## 6. DB 재구축
+## 6. MariaDB 설치 (Linux 기준)
 ---
-1. 사용할 덤프 파일명 : **dump.txt**
+1. sudo apt update && sudo apt upgrade
+2. sudo apt-get install -y mariadb-server
 
 
+## 7. DB 재구축
+---
+1. 사용할 덤프 파일명 : **onboarding.sql** (root directory에 있습니다.)
+2. MariaDB 접속 후 **CREATE DATABASE 데이터베이스명** 입력하여 DB 생성
+3. CLI에서 **mysql -u root -p 데이터베이스명 < onboarding.sql** (mysql에서 입력하는 것 아닙니다.)
 
-## 7. 테스트
+
+## 8. 테스트
 ---
 아래에 포스트맨으로 작성한 문서 링크를 공유하니 참고 부탁드리겠습니다.
 <https://documenter.getpostman.com/view/18993145/Uyr4Jeqi>
-
