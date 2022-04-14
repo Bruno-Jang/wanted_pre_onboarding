@@ -222,6 +222,7 @@ class ProductManageTest(TestCase):
             Product(
                 id               = 1,
                 title            = '프로용 마우스',
+                description      = '프로용 마우스 프로용',
                 end_date         = '2022-10-11',
                 publisher_id     = 1,
                 created_datetime = '2022-04-10',
@@ -229,6 +230,7 @@ class ProductManageTest(TestCase):
             Product(
                 id               = 2,
                 title            = '프로용 키보드',
+                description      = '프로용 키보드 프로용',
                 end_date         = '2022-05-15',
                 publisher_id     = 2,
                 created_datetime = '2022-04-11',
@@ -236,6 +238,7 @@ class ProductManageTest(TestCase):
             Product(
                 id               = 3,
                 title            = '프로용 의자',
+                description      = '프로용 의자 프로용',
                 end_date         = '2022-07-20',
                 publisher_id     = 3,
                 created_datetime = '2022-04-13',
