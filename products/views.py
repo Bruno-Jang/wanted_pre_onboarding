@@ -1,6 +1,5 @@
 import json
-from datetime     import datetime
-from json.decoder import JSONDecodeError
+from datetime import datetime
 
 from django.http      import JsonResponse
 from django.views     import View
