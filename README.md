@@ -2,6 +2,8 @@
 
 ## 1. 프로젝트 정보
 ---
+본 서비스는 크라우드 펀딩 기능을 제공합니다.
+게시자는 크라우드 펀딩을 받기 위한 상품(게시물)을 등록합니다.
 
 
 ## 2. 설치 및 실행 방법
@@ -27,7 +29,7 @@
 4. model의 변경사항을 DB에 반영한다.
 ```bash
   python manage.py makemigrations
-	python manage.py migrate
+  python manage.py migrate
 ```
 5. 서버를 실행한다.
 ```bash
