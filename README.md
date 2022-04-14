@@ -28,8 +28,8 @@
 ```
 4. model의 변경사항을 DB에 반영한다.
 ```bash
-  python manage.py makemigrations
-  python manage.py migrate
+	python manage.py makemigrations
+	python manage.py migrate
 ```
 5. 서버를 실행한다.
 ```bash
@@ -55,7 +55,7 @@
 2. 상품 수정 API
 3. 상품 삭제 API
 4. 상품 목록 조회 API
-   - 상품의 제목 검색 및 정렬 기능을 통한 상품 목록 조회하는 기능 구현
+   - 상품의 제목 검색(Q) 및 정렬 기능(order_by)을 통한 상품 목록 조회하는 기능 구현
    - 상품의 상세 페이지 조회하는 기능 구현
 5. 상품 View 유닛 테스트 작성
 
