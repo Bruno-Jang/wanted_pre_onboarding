@@ -107,44 +107,36 @@ class ProductListView(View):
 
 class ProductManageView(View):
     def patch(self, request, product_id):
-        try:
-            data = json.loads(request.body)
-            
-            publisher_id = data['publisher_id']
-            product      = Product.objects.select_related('detail').get(pk=product_id)
-            
-            if not validate_publisher(product_id, publisher_id):
-                return JsonResponse({'message': 'FORBIDDEN'}, status=403)
-            
-            title              = data.get('title', product.title)
-            description        = data.get('description', product.description)
-            end_date           = data.get('end_date', product.end_date)
-            amount_per_session = data.get('amount_per_session', product.detail.amount_per_session)        
-            
-            Product.objects.filter(pk=product_id).update(
-                title       = title,
-                description = description,
-                end_date    = end_date
-            )
-            
-            Detail.objects.filter(product_id=product.id).update(
-                amount_per_session = amount_per_session
-            )
-            return JsonResponse({'message': 'SUCCESSFULLY_UPDATED'}, status=200)
-
-        except JSONDecodeError:
-            return JsonResponse({'message': 'JSON_DECODE_ERROR'}, status=404)
+        data = json.loads(request.body)
+        
+        publisher_id = data['publisher_id']
+        product      = Product.objects.select_related('detail').get(pk=product_id)
+        
+        if not validate_publisher(product_id, publisher_id):
+            return JsonResponse({'message': 'FORBIDDEN'}, status=403)
+        
+        title              = data.get('title', product.title)
+        description        = data.get('description', product.description)
+        end_date           = data.get('end_date', product.end_date)
+        amount_per_session = data.get('amount_per_session', product.detail.amount_per_session)        
+        
+        Product.objects.filter(pk=product_id).update(
+            title       = title,
+            description = description,
+            end_date    = end_date
+        )
+        
+        Detail.objects.filter(product_id=product.id).update(
+            amount_per_session = amount_per_session
+        )
+        return JsonResponse({'message': 'UPDATED'}, status=200)
 
     def delete(self, request, product_id):
-        try:
-            publisher_id = json.loads(request.body)['publisher_id']
-            product      = Product.objects.get(pk=product_id)
-            
-            if not validate_publisher(product_id, publisher_id):
-                return JsonResponse({'message': 'FORBIDDEN'}, status=403)
-                
-            product.delete()
-            return JsonResponse({'message': 'NO_CONTENT'}, status=204)
+        publisher_id = json.loads(request.body).get('publisher_id')
+        product      = Product.objects.get(pk=product_id)
         
-        except Product.DoesNotExist:
-            return JsonResponse({'message': 'NO_PRODUCT_FOUND'}, status=404)
+        if not validate_publisher(product_id, publisher_id):
+            return JsonResponse({'message': 'FORBIDDEN'}, status=403)
+            
+        product.delete()
+        return JsonResponse({'message': 'NO_CONTENT'}, status=204)
