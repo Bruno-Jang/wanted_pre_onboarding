@@ -6,7 +6,7 @@ from django.views     import View
 from django.db.models import Q
 
 from members.models      import Publisher
-from products.models     import Detail, Product
+from products.models     import Detail, Funding, Product
 from products.validators import validate_publisher
 
 class ProductCreationView(View):
@@ -139,3 +139,39 @@ class ProductManageView(View):
             
         product.delete()
         return JsonResponse({'message': 'NO_CONTENT'}, status=204)
+
+class FundingView(View):
+    def post(self, request, product_id):
+        data = json.loads(request.body)
+
+        backer_id = data['backer_id']
+        quantity  = data['quantity']
+        
+        product = Product.objects.select_related('detail').get(pk=product_id)
+        
+        if quantity <= 0:
+            return JsonResponse({'message': 'INVALID_QUANTITY'}, status=400)
+        
+        funding, created = Funding.objects.get_or_create(
+            product   = product,
+            backer_id = backer_id,
+            defaults  ={
+                'quantity': quantity
+            }
+        )
+        
+        def detail_update():
+            product.detail.total_quantity += quantity
+            product.detail.total_amount += product.detail.amount_per_session * quantity
+            product.detail.achievement_rate = product.detail.total_amount / product.detail.target_amount * 100
+            product.detail.save()
+        
+        if created:
+            product.detail.total_backers += 1
+            detail_update()
+
+        else:
+            funding.quantity += quantity
+            funding.save()
+            detail_update()
+        return JsonResponse({'message': 'UPDATED'}, status=200)

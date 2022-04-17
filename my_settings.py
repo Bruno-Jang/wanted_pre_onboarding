@@ -7,7 +7,7 @@ DATABASES = {
         # 'ENGINE': 'django.db.backends.sqlite3',
         # 'NAME': BASE_DIR / 'db.sqlite3',
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': '', # DB 이름 입력
+        'NAME': 'onboarding', # DB 이름 입력
         'USER': 'root',
         'PASSWORD': '', # DB 비밀번호 입력
         'HOST': 'localhost',
