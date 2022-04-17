@@ -5,7 +5,7 @@ from django.http      import JsonResponse
 from django.views     import View
 from django.db.models import Q
 
-from members.models      import Backer, Publisher
+from members.models      import Publisher
 from products.models     import Detail, Funding, Product
 from products.validators import validate_publisher
 
@@ -147,31 +147,31 @@ class FundingView(View):
         backer_id = data['backer_id']
         quantity  = data['quantity']
         
-        product = Product.objects.select_related('detail').prefetch_related('funding_set').get(pk=product_id)
-        detail = Detail.objects.get(product=product)
+        product = Product.objects.select_related('detail').get(pk=product_id)
         
         if quantity <= 0:
             return JsonResponse({'message': 'INVALID_QUANTITY'}, status=400)
         
         funding, created = Funding.objects.get_or_create(
-            product = product,
+            product   = product,
             backer_id = backer_id,
-            defaults={
+            defaults  ={
                 'quantity': quantity
             }
         )
+        
+        def detail_update():
+            product.detail.total_quantity += quantity
+            product.detail.total_amount += product.detail.amount_per_session * quantity
+            product.detail.achievement_rate = product.detail.total_amount / product.detail.target_amount * 100
+            product.detail.save()
+        
         if created:
-            detail.total_backers += 1
-            detail.save()
+            product.detail.total_backers += 1
+            detail_update()
+
         else:
             funding.quantity += quantity
             funding.save()
-        
-        detail.total_quantity += quantity
-        detail.total_amount += detail.amount_per_session * quantity
-        detail.achievement_rate = detail.total_amount / detail.target_amount * 100
-        detail.save()
+            detail_update()
         return JsonResponse({'message': 'UPDATED'}, status=200)
-        
-        
-        
