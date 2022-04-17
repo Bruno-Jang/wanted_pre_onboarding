@@ -3,7 +3,7 @@ import json
 from django.test import TestCase, Client
 
 from products.models import Product, Detail
-from members.models  import Publisher
+from members.models  import Backer, Publisher
 
 class ProductDetailTest(TestCase):
     def setUp(self):
@@ -53,7 +53,7 @@ class ProductDetailTest(TestCase):
                 'target_amount'   : '20,000원',
                 'total_amount'    : '0원',
                 'achievement_rate': '0%',
-                'd-day'           : '6일',
+                'd-day'           : '3일',
                 'total_backers'   : '0명'
                 }
             }
@@ -166,7 +166,7 @@ class ProductMainTest(TestCase):
                 'publisher_name'  : 'edie',
                 'total_amount'    : '0원',
                 'achievement_rate': '0%',
-                'd-day'           : '97일'
+                'd-day'           : '94일'
                 },
                 {
                 'product_id'      : 2,
@@ -175,7 +175,7 @@ class ProductMainTest(TestCase):
                 'publisher_name'  : 'kyle',
                 'total_amount'    : '0원',
                 'achievement_rate': '0%',
-                'd-day'           : '31일'
+                'd-day'           : '28일'
                 },
                 {
                 'product_id'      : 1,
@@ -184,7 +184,7 @@ class ProductMainTest(TestCase):
                 'publisher_name'  : 'bruno',
                 'total_amount'    : '0원',
                 'achievement_rate': '0%',
-                'd-day'           : '180일'
+                'd-day'           : '177일'
                 }]
             }
         )
@@ -350,3 +350,135 @@ class ProductManageTest(TestCase):
             {'message': 'FORBIDDEN'}
         )
         self.assertEqual(response.status_code, 403)
+
+class FundingTest(TestCase):
+    def setUp(self):
+        publisher_list = [
+            Publisher(
+                id   = 1,
+                name = '삼전'
+            ),
+            Publisher(
+                id   = 2,
+                name = '금성'
+            ),
+            Publisher(
+                id   = 3,
+                name = '사과'
+            )
+        ]
+        Publisher.objects.bulk_create(publisher_list)
+        
+        backer_list = [
+            Backer(
+                id   = 1,
+                name = 'laca'
+            ),
+            Backer(
+                id   = 2,
+                name = 'lucas'
+            ),
+            Backer(
+                id   = 3,
+                name = 'martin'
+            )
+        ]
+        Backer.objects.bulk_create(backer_list)
+        
+        product_list = [
+            Product(
+                id               = 1,
+                title            = '프로용 마우스',
+                description      = '프로용 마우스 프로용',
+                end_date         = '2022-10-11',
+                publisher_id     = 1,
+                created_datetime = '2022-04-10',
+            ),
+            Product(
+                id               = 2,
+                title            = '프로용 키보드',
+                description      = '프로용 키보드 프로용',
+                end_date         = '2022-05-15',
+                publisher_id     = 2,
+                created_datetime = '2022-04-11',
+            ),
+            Product(
+                id               = 3,
+                title            = '프로용 의자',
+                description      = '프로용 의자 프로용',
+                end_date         = '2022-07-20',
+                publisher_id     = 3,
+                created_datetime = '2022-04-13',
+            )
+        ]
+        Product.objects.bulk_create(product_list)
+        
+        detail_list = [
+            Detail(
+                id                 = 1,
+                target_amount      = 20000,
+                amount_per_session = 200,
+                total_amount       = 0,
+                total_quantity     = 0,
+                achievement_rate   = 0,
+                total_backers      = 0,
+                product_id         = 1
+            ),
+            Detail(
+                id                 = 2,
+                target_amount      = 500000,
+                amount_per_session = 50000,
+                total_amount       = 0,
+                total_quantity     = 0,
+                achievement_rate   = 0,
+                total_backers      = 0,
+                product_id         = 2
+            ),
+            Detail(
+                id                 = 3,
+                target_amount      = 30000000,
+                amount_per_session = 130000,
+                total_amount       = 0,
+                total_quantity     = 0,
+                achievement_rate   = 0,
+                total_backers      = 0,
+                product_id         = 3
+            )
+        ]
+        Detail.objects.bulk_create(detail_list)
+        
+    def tearDown(self):
+        Publisher.objects.all().delete()
+        Backer.objects.all().delete()
+        Product.objects.all().delete()
+        Detail.objects.all().delete()
+        
+    def test_post_success_funding(self):       
+        data = {
+            'backer_id': 1,
+            'quantity' : 2,
+        }
+        url      = '/products/1/funding'
+        res      = json.dumps(data)
+        client   = Client()
+        response = client.post(url, res, content_type='application/json')
+
+        self.assertEqual(response.json(),
+            {'message': 'UPDATED'}
+        )
+        self.assertEqual(response.status_code, 200)
+        
+    def test_post_fail_funding_when_quantity_is_not_valid_value(self):       
+        data = {
+            'backer_id': 1,
+            'quantity' : -2,
+        }
+        url      = '/products/1/funding'
+        res      = json.dumps(data)
+        client   = Client()
+        response = client.post(url, res, content_type='application/json')
+
+        self.assertEqual(response.json(),
+            {'message': 'INVALID_QUANTITY'}
+        )
+        self.assertEqual(response.status_code, 400)
