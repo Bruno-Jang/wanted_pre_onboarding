@@ -87,11 +87,11 @@ uri, 클래스명, 변수명을 비롯한 코드들 모두 최대한 주석이 �
 ## 8. 테스트
 ---
 아래에 포스트맨으로 작성한 문서 링크를 공유하니 참고 부탁드리겠습니다.
-![상품 등록 post](https://user-images.githubusercontent.com/75561289/163701452-7553c6a1-791e-46b7-bd88-6ac81db1e854.png)
-![상품 삭제 delete](https://user-images.githubusercontent.com/75561289/163701507-6f8fa760-28c6-4e21-9165-38385460e0a4.png)
-![상품 상세 페이지 조회 get](https://user-images.githubusercontent.com/75561289/163701518-1085c4a8-3d92-4f7c-9cde-328385ec6d51.png)
-![상품 전체 리스트 조회 get](https://user-images.githubusercontent.com/75561289/163701523-ab21a69a-cf37-4f79-8593-f3a03cab6d53.png)
-![상품 정보 수정 update](https://user-images.githubusercontent.com/75561289/163701542-f25bfef9-eed7-422e-87ec-34983404825c.png)
-![펀딩 기능 post](https://user-images.githubusercontent.com/75561289/163701550-276d81d3-2b4c-42b1-9ba3-8a6e266a1b99.png)
+![상품 등록 post](https://user-images.githubusercontent.com/75561289/163907826-ea84b2cd-84be-416c-b8f1-452702c35cfe.png)
+![상품 삭제 delete](https://user-images.githubusercontent.com/75561289/163907888-fa43896e-48fd-4889-acd3-46b18e88fee6.png)
+![상품 상세 페이지 조회 get](https://user-images.githubusercontent.com/75561289/163907921-e5982e21-5ca3-4cf4-ba47-e5ce711c4d9b.png)
+![상품 전체 리스트 조회 get](https://user-images.githubusercontent.com/75561289/163907959-885cbf35-3bad-4727-ab7c-454146dea142.png)
+![상품 정보 수정 update](https://user-images.githubusercontent.com/75561289/163907981-83e02d3c-c74c-4c7a-9073-f52d3315198a.png)
+![펀딩 기능 post](https://user-images.githubusercontent.com/75561289/163908002-1019866a-f31d-4a63-929d-5d4c870c8e89.png)
 
 <https://documenter.getpostman.com/view/18993145/Uyr4Jeqi>
