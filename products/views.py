@@ -23,6 +23,9 @@ class ProductCreationView(View):
             
             publisher = Publisher.objects.get(pk=publisher_id)
             
+            if (datetime.strptime(end_date, '%Y-%m-%d').date() < datetime.now().date()).days:
+                return JsonResponse({'message': 'INVALID_DATE'}, status=400)
+            
             product = Product.objects.create(
                 title       = title,
                 description = description,
@@ -117,7 +120,11 @@ class ProductManageView(View):
         title              = data.get('title', product.title)
         description        = data.get('description', product.description)
         end_date           = data.get('end_date', product.end_date)
-        amount_per_session = data.get('amount_per_session', product.detail.amount_per_session)        
+        amount_per_session = data.get('amount_per_session', product.detail.amount_per_session)
+        
+        if type(end_date) == str:
+            if datetime.strptime(end_date, '%Y-%m-%d').date() < datetime.now().date():
+                return JsonResponse({'message': 'INVALID_DATE'}, status=400)
         
         Product.objects.filter(pk=product_id).update(
             title       = title,
@@ -148,6 +155,9 @@ class FundingView(View):
         quantity  = data['quantity']
         
         product = Product.objects.select_related('detail').get(pk=product_id)
+        
+        if product.end_date < datetime.now().date():
+            return JsonResponse({'message': 'FUNDING_HAS_BEEN_CLOSED'}, status=403)
         
         if quantity <= 0:
             return JsonResponse({'message': 'INVALID_QUANTITY'}, status=400)

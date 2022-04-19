@@ -53,7 +53,7 @@ class ProductDetailTest(TestCase):
                 'target_amount'   : '20,000원',
                 'total_amount'    : '0원',
                 'achievement_rate': '0%',
-                'd-day'           : '3일',
+                'd-day'           : '1일',
                 'total_backers'   : '0명'
                 }
             }
@@ -166,7 +166,7 @@ class ProductMainTest(TestCase):
                 'publisher_name'  : 'edie',
                 'total_amount'    : '0원',
                 'achievement_rate': '0%',
-                'd-day'           : '94일'
+                'd-day'           : '92일'
                 },
                 {
                 'product_id'      : 2,
@@ -175,7 +175,7 @@ class ProductMainTest(TestCase):
                 'publisher_name'  : 'kyle',
                 'total_amount'    : '0원',
                 'achievement_rate': '0%',
-                'd-day'           : '28일'
+                'd-day'           : '26일'
                 },
                 {
                 'product_id'      : 1,
@@ -184,7 +184,7 @@ class ProductMainTest(TestCase):
                 'publisher_name'  : 'bruno',
                 'total_amount'    : '0원',
                 'achievement_rate': '0%',
-                'd-day'           : '177일'
+                'd-day'           : '175일'
                 }]
             }
         )
