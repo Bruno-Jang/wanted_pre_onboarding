@@ -9,7 +9,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'onboarding', # DB 이름 입력
         'USER': 'root',
-        'PASSWORD': '', # DB 비밀번호 입력
+        'PASSWORD': '080914', # DB 비밀번호 입력
         'HOST': 'localhost',
         'PORT': ''
     }

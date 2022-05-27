@@ -1,4 +1,4 @@
-from my_settings import DATABASES, SECRET_KEY
+from onboarding_settings import DATABASES, SECRET_KEY
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
